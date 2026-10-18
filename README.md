@@ -44,19 +44,35 @@ Driver minimal ada: `lidar/rplidar.py` (motor via DTR/RTS, deskriptor scan, pars
 
 ## Training + ekspor ONNX
 
-Daftar notebook:
+Dua notebook:
 
 | Notebook | Isi |
 |---|---|
-| `notebooks/01_train_yolo.ipynb` | **Pakai ini.** Training lokal dari `dataset/data.yaml` → validasi → ekspor ONNX (opset 12, simplify=True) agar kompatibel `cv2.dnn` (Repo A/Repo B) |
+| `notebooks/01_train_yolo.ipynb` | Training YOLOv8 → validasi → ekspor ONNX (opset 12, simplify=True) agar kompatibel `cv2.dnn` (Repo A/Repo B). Bisa pakai dataset **lokal** (hasil capture) atau **unduh dari Roboflow** (opsional, API key lewat env) |
 | `notebooks/02_lidar_shape_sim.ipynb` | Riset lidar: simulasi scan → cluster → buoy/gate, tanpa hardware |
-| `notebooks/00_template_roboflow_arsip.ipynb` | Arsip template Roboflow (upload dataset ke cloud + deploy API/Edge). Tidak dipakai untuk alur lokal — simpan sebagai referensi |
 
-Alur lokal: capture (`tools/camera_capture.py`) → label → `01_train_yolo.ipynb` → `scripts/export_onnx.py`. Dataset lokal: lihat `dataset/README.md`.
+**`.pt` vs `.onnx`:** training otomatis menghasilkan `runs/detect/train/weights/best.pt` (model asli, untuk Python/ultralytics). Kapal memakai `cv2.dnn` yang **tidak bisa membaca `.pt`**, karena itu `best.pt` diekspor ke `.onnx` (isi identik, format beda). Butuh `.pt` saja? Lewati cell ekspor ONNX.
+
+Alur: capture (`tools/camera_capture.py`) atau Roboflow → label → `01_train_yolo.ipynb` → `scripts/export_onnx.py`. Dataset lokal: lihat `dataset/README.md`.
+
+Ekspor ONNX dari terminal (sama seperti cell di notebook):
 
 ```bash
 python scripts/export_onnx.py --input runs/detect/train/weights/best.pt --output weights/best.onnx
 ```
+
+### Dataset dari Roboflow (opsional)
+
+Kalau dataset sudah dianotasi di Roboflow, isi `RF_WORKSPACE` / `RF_PROJECT` / `RF_VERSION`
+(lihat URL `app.roboflow.com/<workspace>/<project>/<versi>`) lalu set `USE_ROBOFLOW = True`
+di `notebooks/01_train_yolo.ipynb`. API key **jangan** ditulis di notebook:
+
+```bash
+export ROBOFLOW_API_KEY="xxxx"          # Linux/macOS
+setx ROBOFLOW_API_KEY "xxxx"            # Windows (restart terminal setelahnya)
+```
+
+Alternatif tanpa SDK: dashboard Roboflow → *Download Dataset* → format **YOLOv8** → ekstrak zip ke `dataset/`.
 
 ## Catatan safety
 
@@ -70,7 +86,7 @@ python scripts/export_onnx.py --input runs/detect/train/weights/best.pt --output
 training asv/
 ├── dataset/     README + data.yaml hasil capture
 ├── lidar/       rplidar driver + shapes (cluster/circle-fit/gate)
-├── notebooks/   00_arsip Roboflow, 01_train_yolo, 02_lidar_shape_sim
+├── notebooks/   01_train_yolo.ipynb, 02_lidar_shape_sim.ipynb
 ├── scripts/     export_onnx.py
 ├── tools/       conn_check, thruster/servo, camera_capture, lidar_test, lidar_shapes
 ├── requirements.txt

@@ -3,3 +3,9 @@ __pycache__/
 *.egg-info/
 .venv/
 *.ipynb_checkpoints
+
+# artefak training/capture (besar, jangan di-commit)
+runs/
+*.pt
+dataset/images/
+dataset/labels/
