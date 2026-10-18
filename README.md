@@ -44,7 +44,15 @@ Driver minimal ada: `lidar/rplidar.py` (motor via DTR/RTS, deskriptor scan, pars
 
 ## Training + ekspor ONNX
 
-`notebooks/01_train_yolo.ipynb` → training lokal, validasi, ekspor ONNX (opset 12, simplify=True) agar kompatibel `cv2.dnn` (Repo A/Repo B). Dataset lokal: lihat `dataset/README.md`.
+Daftar notebook:
+
+| Notebook | Isi |
+|---|---|
+| `notebooks/01_train_yolo.ipynb` | **Pakai ini.** Training lokal dari `dataset/data.yaml` → validasi → ekspor ONNX (opset 12, simplify=True) agar kompatibel `cv2.dnn` (Repo A/Repo B) |
+| `notebooks/02_lidar_shape_sim.ipynb` | Riset lidar: simulasi scan → cluster → buoy/gate, tanpa hardware |
+| `notebooks/00_template_roboflow_arsip.ipynb` | Arsip template Roboflow (upload dataset ke cloud + deploy API/Edge). Tidak dipakai untuk alur lokal — simpan sebagai referensi |
+
+Alur lokal: capture (`tools/camera_capture.py`) → label → `01_train_yolo.ipynb` → `scripts/export_onnx.py`. Dataset lokal: lihat `dataset/README.md`.
 
 ```bash
 python scripts/export_onnx.py --input runs/detect/train/weights/best.pt --output weights/best.onnx
@@ -62,7 +70,7 @@ python scripts/export_onnx.py --input runs/detect/train/weights/best.pt --output
 training asv/
 ├── dataset/     README + data.yaml hasil capture
 ├── lidar/       rplidar driver + shapes (cluster/circle-fit/gate)
-├── notebooks/   01_train_yolo.ipynb + 02_lidar_shape_sim.ipynb (riset)
+├── notebooks/   00_arsip Roboflow, 01_train_yolo, 02_lidar_shape_sim
 ├── scripts/     export_onnx.py
 ├── tools/       conn_check, thruster/servo, camera_capture, lidar_test, lidar_shapes
 ├── requirements.txt
